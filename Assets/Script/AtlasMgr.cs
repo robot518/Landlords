@@ -18,7 +18,7 @@ public class AtlasMgr {
 			if (atlas [i].name == sptName)
 				return (Sprite) atlas [i];
 		}
-		return new Sprite();
+		return null;
 	}
 	public void delAtals(string sptAtlasPath){
 		if (atDic.ContainsKey (sptAtlasPath))

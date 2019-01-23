@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Type = PlayCardControl.CardGroupType;
 
@@ -26,14 +27,13 @@ public class Main : MonoBehaviour {
 	Transform goGloTips;
 	AudioMgr adMgr;
 	bool _bOneLeft = false;
-	Transform goInfo;
 
 	// Use this for initialization
 	void Start () {
 		initParas ();
-		initShow ();
 		initEvent ();
-	}
+        initShow();
+    }
 	
 	// Update is called once per frame
 	void Update () {
@@ -55,7 +55,6 @@ public class Main : MonoBehaviour {
 		goRight = transform.Find ("goFirst/goRight");
 		goTips = transform.Find ("goFirst/goTips");
 		goGloTips = transform.Find ("goGloTips");
-		goInfo = transform.Find ("goInfo");
 		var pos = goHandCard.localPosition;
 		_pxHandCard = pos.x;
 		_pyHandCard = pos.y;
@@ -77,13 +76,13 @@ public class Main : MonoBehaviour {
 
 	void initEvent(){
 		transform.Find ("goStart").GetComponent<Button> ().onClick.AddListener (onStart);
-		goLeft.GetComponent<Button> ().onClick.AddListener (onClicLeft);
+		goLeft.GetComponent<Button> ().onClick.AddListener (onClickLeft);
 		goRight.GetComponent<Button> ().onClick.AddListener (onClickRight);
 		goTips.GetComponent<Button> ().onClick.AddListener (onClickTips);
 		transform.Find ("imgBg").GetComponent<Button> ().onClick.AddListener (onClickBg);
 		transform.Find("goBQ/btn").GetComponent<Button> ().onClick.AddListener (delegate {
-			goInfo.gameObject.SetActive(!goInfo.gameObject.activeSelf);
-		});
+            SceneManager.LoadScene("Lobby");
+        });
 	}
 
 	IEnumerator playTips(){
@@ -156,7 +155,7 @@ public class Main : MonoBehaviour {
 		StartCoroutine (playDealCard ());
 	}
 
-	void onClicLeft(){
+	void onClickLeft(){
 		var lOutCardTemp = lOutCard [2].Count > 0 ? lOutCard [2] : lOutCard [1];
 		if (_iTurn == 0 && lOutCardTemp.Count == 0)
 			return;
@@ -183,7 +182,7 @@ public class Main : MonoBehaviour {
 				item.gameObject.SetActive (true);
 				item.GetComponent<Card> ().init (lCardTop [i]);
 			}
-			onBelandlord ();
+            onBeLandlord();
 		} else if (_iBtnType == 1) {
 			var lCardNum = getOutCard ();
 			var iCardType = playCardControl.getCardType (lCardNum);
@@ -259,7 +258,7 @@ public class Main : MonoBehaviour {
 				transP.GetChild (idx).localPosition = new Vector3 (_pxHandCard + DX * idx, _pyHandCard + DY, 0);
 			}
 		} else {
-			onClicLeft ();
+			onClickLeft ();
 		}
 	}
 
@@ -270,7 +269,7 @@ public class Main : MonoBehaviour {
 		}
 	}
 
-	public void onBelandlord(){
+    void onBeLandlord(){
 		for (int i = 0; i < 3; i++) {
 			lCard [0].Add (lCardTop [i]);
 		}

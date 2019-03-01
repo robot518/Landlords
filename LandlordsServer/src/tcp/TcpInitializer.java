@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package websocketx;
+package tcp;
 
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -26,13 +26,13 @@ import io.netty.handler.ssl.SslContext;
 
 /**
  */
-public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel> {
+public class TcpInitializer extends ChannelInitializer<SocketChannel> {
 
     private static final String WEBSOCKET_PATH = "/websocket";
 
     private final SslContext sslCtx;
 
-    public WebSocketServerInitializer(SslContext sslCtx) {
+    public TcpInitializer(SslContext sslCtx) {
         this.sslCtx = sslCtx;
     }
 
@@ -44,9 +44,6 @@ public class WebSocketServerInitializer extends ChannelInitializer<SocketChannel
         }
         pipeline.addLast("httpServerCodec", new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(65536));
-        pipeline.addLast(new WebSocketServerCompressionHandler());
-        pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-//        pipeline.addLast(new WebSocketIndexPageHandler(WEBSOCKET_PATH));
-        pipeline.addLast(new WebSocketFrameHandler());
+        pipeline.addLast(new TcpHandler());
     }
 }

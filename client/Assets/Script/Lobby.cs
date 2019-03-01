@@ -46,7 +46,7 @@ public class Lobby : MonoBehaviour
                 return;
             tsCreateRoomInfo.gameObject.SetActive(true);
         });
-        //刷新
+        //单机
         tsBtns.GetChild(2).GetComponent<Button>().onClick.AddListener(delegate {
             SceneManager.LoadScene("Main");
         });

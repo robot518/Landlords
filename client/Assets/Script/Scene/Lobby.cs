@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-//using websocketSharp;
 
 public class Lobby : MonoBehaviour
 {
@@ -50,7 +49,10 @@ public class Lobby : MonoBehaviour
         tsBtns.GetChild(2).GetComponent<Button>().onClick.AddListener(delegate {
             SceneManager.LoadScene("Main");
         });
-
+        //联网
+        tsBtns.GetChild(3).GetComponent<Button>().onClick.AddListener(delegate {
+            SceneManager.LoadScene("Online");
+        });
 
         //确定
         transform.Find("createRoomInfo/sure").GetComponent<Button>().onClick.AddListener(delegate {

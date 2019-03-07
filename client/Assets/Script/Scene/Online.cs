@@ -5,7 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using Type = PlayCardControl.CardGroupType;
 
-public class Main : MonoBehaviour {
+public class Online : MonoBehaviour, IMain {
 	List<Player> lPlayer = new List<Player>();
 	Transform goTop;
 	List<List<int>> lCard = new List<List<int>>();

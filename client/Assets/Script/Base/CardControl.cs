@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 public class CardControl : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerUpHandler {
-	Main _delt;
+	IMain _delt;
 	int _idx;
 	const int DY = 30;
 
@@ -19,7 +19,7 @@ public class CardControl : MonoBehaviour, IPointerDownHandler, IPointerEnterHand
 		
 	}
 
-	public void init(Main delt, int idx){
+	public void init(IMain delt, int idx){
 		_delt = delt;
 		_idx = idx;
 	}

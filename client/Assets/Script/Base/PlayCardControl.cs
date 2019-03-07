@@ -7,9 +7,9 @@ public class PlayCardControl {
 	int _iCardNum;
 	int _iTipIdx;
 	CardGroupType _iCardType;
-	Main _delt;
+    IMain _delt;
 
-	public PlayCardControl(Main delt){
+	public PlayCardControl(IMain delt){
 		_delt = delt;
 	}
 

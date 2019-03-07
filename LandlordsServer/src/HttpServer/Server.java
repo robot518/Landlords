@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations
  * under the License.
  */
-package tcp;
+package HttpServer;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -45,7 +45,7 @@ import io.netty.handler.ssl.util.SelfSignedCertificate;
  * <li>Firefox 11+ (RFC 6455 aka draft-ietf-hybi-thewebsocketprotocol-17)
  * </ul>
  */
-public final class TcpServer {
+public final class Server {
 
     static final boolean SSL = System.getProperty("ssl") != null;
     static final int PORT = Integer.parseInt(System.getProperty("port", SSL? "443" : "8848"));
@@ -67,7 +67,7 @@ public final class TcpServer {
             b.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .handler(new LoggingHandler(LogLevel.INFO))
-                    .childHandler(new TcpInitializer(sslCtx));
+                    .childHandler(new ServerInitializer(sslCtx));
 
             Channel ch = b.bind(PORT).sync().channel();
 

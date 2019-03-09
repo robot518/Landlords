@@ -7,6 +7,7 @@ using UnityEngine.UI;
 public class Lobby : MonoBehaviour
 {
     const int iInterval = 1;
+    Transform tips;
     Transform tsItem;
     Transform tsCreateRoomInfo;
     InputField ipfRoomName;
@@ -17,6 +18,7 @@ public class Lobby : MonoBehaviour
         initParas();
         initEvent();
         initShow();
+        HttpClient.Instance.Register(1, createRoomCb);
     }
 
     // Update is called once per frame
@@ -27,6 +29,7 @@ public class Lobby : MonoBehaviour
 
     void initParas()
     {
+        tips = transform.Find("tips");
         tsItem = transform.Find("scv/view/Content/item");
         tsCreateRoomInfo = transform.Find("createRoomInfo");
         ipfRoomName = transform.Find("createRoomInfo/input").GetComponent<InputField>();
@@ -37,7 +40,7 @@ public class Lobby : MonoBehaviour
         Transform tsBtns = transform.Find("btns");
         //刷新
         tsBtns.GetChild(0).GetComponent<Button>().onClick.AddListener(delegate {
-
+            //HttpClient.Instance.Send("haha");
         });
         //创建房间
         tsBtns.GetChild(1).GetComponent<Button>().onClick.AddListener(delegate {
@@ -49,14 +52,11 @@ public class Lobby : MonoBehaviour
         tsBtns.GetChild(2).GetComponent<Button>().onClick.AddListener(delegate {
             SceneManager.LoadScene("Main");
         });
-        //联网
-        tsBtns.GetChild(3).GetComponent<Button>().onClick.AddListener(delegate {
-            SceneManager.LoadScene("Online");
-        });
 
         //确定
         transform.Find("createRoomInfo/sure").GetComponent<Button>().onClick.AddListener(delegate {
-
+            if (ipfRoomName.text == "") showGloTips("房间名不能为空");
+            else HttpClient.Instance.Send(1, ipfRoomName.text);
         });
         //取消
         transform.Find("createRoomInfo/cancel").GetComponent<Button>().onClick.AddListener(delegate {
@@ -102,5 +102,30 @@ public class Lobby : MonoBehaviour
             });
         }
         content.GetComponent<RectTransform>().sizeDelta = new Vector2(0, -dy * iCount);
+    }
+
+    IEnumerator playTips()
+    {
+        tips.gameObject.SetActive(true);
+        yield return new WaitForSeconds(1.0f);
+        tips.gameObject.SetActive(false);
+    }
+
+    void showGloTips(string str)
+    {
+        tips.GetChild(0).GetComponent<Text>().text = str;
+        StartCoroutine(playTips());
+    }
+
+    void createRoomCb(string s)
+    {
+        if (s[0] == '1') //成功
+        {
+            SceneManager.LoadScene("Online");
+        }
+        else
+        {
+            showGloTips("房间名重复");
+        }
     }
 }

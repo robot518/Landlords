@@ -11,7 +11,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.text.SimpleDateFormat;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter{
-    List<String> roomList = new ArrayList();
+    static List<String> roomList = new ArrayList();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -43,7 +43,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
                 if (roomList.contains(roomName)) ctx.write(Unpooled.copiedBuffer("10".getBytes()));
                 else {
                     roomList.add(roomName);
-                    ctx.write(Unpooled.copiedBuffer("10".getBytes()));
+                    ctx.write(Unpooled.copiedBuffer("11".getBytes()));
                 }
                 break;
         }

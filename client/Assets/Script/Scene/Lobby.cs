@@ -6,25 +6,46 @@ using UnityEngine.UI;
 
 public class Lobby : MonoBehaviour
 {
-    const int iInterval = 1;
+    //const int iInterval = 1;
+    public static Lobby Instance; 
     Transform tips;
     Transform tsItem;
     Transform tsCreateRoomInfo;
     InputField ipfRoomName;
+    bool bNetResp = false;
+    string respMsg = "";
 
     // Start is called before the first frame update
     void Start()
     {
+        if (Instance == null) Instance = this;
         initParas();
         initEvent();
         initShow();
-        HttpClient.Instance.Register(1, createRoomCb);
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (bNetResp)
+        {
+            int type = int.Parse(respMsg.Substring(0, 1) + "");
+            Debug.Log(respMsg);
+            switch (type)
+            {
+                case 1:
+                    if (respMsg[1] == '1') //成功
+                    {
+                        SceneManager.LoadScene("Online");
+                    }
+                    else
+                    {
+                        showGloTips("房间名重复");
+                    }
+                    break;
+            }
+            bNetResp = false;
+        }
     }
 
     void initParas()
@@ -56,7 +77,7 @@ public class Lobby : MonoBehaviour
         //确定
         transform.Find("createRoomInfo/sure").GetComponent<Button>().onClick.AddListener(delegate {
             if (ipfRoomName.text == "") showGloTips("房间名不能为空");
-            else HttpClient.Instance.Send(1, ipfRoomName.text);
+            else if(HttpClient.Instance) HttpClient.Instance.Send(1, ipfRoomName.text);
         });
         //取消
         transform.Find("createRoomInfo/cancel").GetComponent<Button>().onClick.AddListener(delegate {
@@ -117,15 +138,9 @@ public class Lobby : MonoBehaviour
         StartCoroutine(playTips());
     }
 
-    void createRoomCb(string s)
+    public void createRoomCb(string s)
     {
-        if (s[0] == '1') //成功
-        {
-            SceneManager.LoadScene("Online");
-        }
-        else
-        {
-            showGloTips("房间名重复");
-        }
+        bNetResp = true;
+        respMsg = s;
     }
 }

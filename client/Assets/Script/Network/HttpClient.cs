@@ -20,8 +20,12 @@ public class HttpClient : MonoBehaviour
 
     private void Awake()
     {
-        if (!Instance) Instance = this;
-        connect();
+        if (!Instance)
+        {
+            DontDestroyOnLoad(this);
+            Instance = this;
+            connect();
+        }
     }
 
     void Update()
@@ -68,7 +72,12 @@ public class HttpClient : MonoBehaviour
             string msg = Encoding.UTF8.GetString(buffer, 0, len);
             Debug.Log("cbmsg = " + msg);
             int type = int.Parse(msg.Substring(0, 1)+"");
-            if (_callBacks.ContainsKey(type)) _callBacks[type](msg.Substring(1)+"");
+            switch (type)
+            {
+                case 1:
+                    Lobby.Instance.createRoomCb(msg);
+                    break;
+            }
         }
     }
 
@@ -80,10 +89,5 @@ public class HttpClient : MonoBehaviour
             client.Shutdown(SocketShutdown.Both);
             client.Close();
         }
-    }
-
-    public void Register(int type, CallBack cb)
-    {
-        if (!_callBacks.ContainsKey(type)) _callBacks.Add(type, cb);
     }
 }

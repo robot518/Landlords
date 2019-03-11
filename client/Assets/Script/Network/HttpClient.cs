@@ -6,11 +6,8 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
-public delegate void CallBack(string s);
-
 public class HttpClient : MonoBehaviour
 {
-    static Dictionary<int, CallBack> _callBacks = new Dictionary<int, CallBack>();
     public static HttpClient Instance;
     private const string IP = "127.0.0.1";
     private const int PORT = 8848;
@@ -50,10 +47,17 @@ public class HttpClient : MonoBehaviour
         }
     }
 
-    public void Send(int type, string s)
+    public void Send(int type, string s = "")
     {
-        Debug.Log("send: "+type+":"+s);
-        if (client == null)
+        try
+        {
+            Debug.Log(client.RemoteEndPoint+ "send: " + type + ":" + s);
+        }
+        catch
+        {
+            connect();
+        }
+        if (client == null || client.RemoteEndPoint == null)
         {
             connect();
         }
@@ -69,15 +73,11 @@ public class HttpClient : MonoBehaviour
         while (true)
         {
             len = client.Receive(buffer);
+            if (len == 0) threadReceive.Abort();
             string msg = Encoding.UTF8.GetString(buffer, 0, len);
-            Debug.Log("cbmsg = " + msg);
-            int type = int.Parse(msg.Substring(0, 1)+"");
-            switch (type)
-            {
-                case 1:
-                    Lobby.Instance.createRoomCb(msg);
-                    break;
-            }
+            Debug.Log("ReceiveMsg = " + msg);
+            //int type = int.Parse(msg.Substring(0, 1)+"");
+            Lobby.Instance.onResponse(msg);
         }
     }
 

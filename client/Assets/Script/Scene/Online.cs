@@ -6,7 +6,9 @@ using UnityEngine.UI;
 using Type = PlayCardControl.CardGroupType;
 
 public class Online : MonoBehaviour, IMain {
-	List<Player> lPlayer = new List<Player>();
+    public static Online Instance;
+    public static string roomName;
+    List<Player> lPlayer = new List<Player>();
 	Transform goTop;
 	List<List<int>> lCard = new List<List<int>>();
 	List<List<int>> lOutCard = new List<List<int>>();
@@ -30,7 +32,8 @@ public class Online : MonoBehaviour, IMain {
 
 	// Use this for initialization
 	void Start () {
-		initParas ();
+        if (Instance == null) Instance = this;
+        initParas ();
 		initEvent ();
         initShow();
     }
@@ -81,6 +84,7 @@ public class Online : MonoBehaviour, IMain {
 		goTips.GetComponent<Button> ().onClick.AddListener (onClickTips);
 		transform.Find ("imgBg").GetComponent<Button> ().onClick.AddListener (onClickBg);
 		transform.Find("goBQ/btn").GetComponent<Button> ().onClick.AddListener (delegate {
+            HttpClient.Instance.Send(3, roomName);
             SceneManager.LoadScene("Lobby");
         });
 	}

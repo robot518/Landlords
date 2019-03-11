@@ -9,9 +9,11 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import java.text.SimpleDateFormat;
+import java.util.Map;
+import java.util.HashMap;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter{
-    static List<String> roomList = new ArrayList();
+    static Map<String, List<ChannelHandlerContext>> map = new HashMap();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -37,13 +39,35 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
         String body = new String(req,"UTF-8");
         System.out.println(getStrDate()+ctx.channel().remoteAddress()+"\t"+body);
         int type = body.charAt(0)-'0';
+        String roomName = body.substring(2);
         switch(type){
-            case 1: // 创建房间
-                String roomName = body.substring(2);
-                if (roomList.contains(roomName)) ctx.write(Unpooled.copiedBuffer("10".getBytes()));
+            case 1: //创建房间
+                if (map.containsKey(roomName)) ctx.write(Unpooled.copiedBuffer("10".getBytes()));
                 else {
-                    roomList.add(roomName);
+                    List<ChannelHandlerContext> temp = new ArrayList();
+                    temp.add(ctx);
+                    map.put(roomName, temp);
                     ctx.write(Unpooled.copiedBuffer("11".getBytes()));
+                }
+                break;
+            case 2: //查看房间
+                StringBuilder sb = new StringBuilder();
+                for (String s: map.keySet()) sb.append('|').append(s).append(',').append(map.get(s).size());
+                String str = map.size() > 0 ? 2+sb.toString().substring(1) : "2";
+                ctx.write(Unpooled.copiedBuffer(str.getBytes()));
+                break;
+            case 3: //离开房间
+                if (map.containsKey(roomName)){
+                    List<ChannelHandlerContext> ctxs = map.get(roomName);
+                    int idx = ctxs.indexOf(ctx);
+                    if (idx != -1) ctxs.remove(idx);
+                    if (ctxs.size() == 0) map.remove(roomName);
+                }
+                break;
+            case 4: //加入房间
+                if (map.containsKey(roomName)){
+                    map.get(roomName).add(ctx);
+                    ctx.write(Unpooled.copiedBuffer("4".getBytes()));
                 }
                 break;
         }

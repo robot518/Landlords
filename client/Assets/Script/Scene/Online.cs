@@ -29,9 +29,11 @@ public class Online : MonoBehaviour, IMain {
 	Transform goGloTips;
 	AudioMgr adMgr;
 	bool _bOneLeft = false;
+    bool bNetResp = false;
+    string respMsg = "";
 
-	// Use this for initialization
-	void Start () {
+    // Use this for initialization
+    void Start () {
         if (Instance == null) Instance = this;
         initParas ();
 		initEvent ();
@@ -40,8 +42,27 @@ public class Online : MonoBehaviour, IMain {
 	
 	// Update is called once per frame
 	void Update () {
-		
-	}
+		if (bNetResp)
+        {
+            int type = respMsg[0]-'0';
+            switch (type)
+            {
+                case 5: //房间玩家状态变更，离开/加入
+                    showPlayStatus(respMsg[1] - '0', respMsg[2]);
+                    break;
+                case 6: //游戏开始
+                    string[] myCards = respMsg.Substring(1).Split(',');
+                    for (int i = 0; i < myCards.Length; i++)
+                        lCard[0].Add(int.Parse(myCards[i]));
+                    onStart();
+                    break;
+                case 7: //抢地主
+
+                    break;
+            }
+            bNetResp = false;
+        }
+    }
 
 	void initParas(){
 		goHandCard = transform.Find ("goFirst/goHand/goCard");
@@ -78,16 +99,18 @@ public class Online : MonoBehaviour, IMain {
 	}
 
 	void initEvent(){
-		transform.Find ("goStart").GetComponent<Button> ().onClick.AddListener (onStart);
 		goLeft.GetComponent<Button> ().onClick.AddListener (onClickLeft);
 		goRight.GetComponent<Button> ().onClick.AddListener (onClickRight);
 		goTips.GetComponent<Button> ().onClick.AddListener (onClickTips);
 		transform.Find ("imgBg").GetComponent<Button> ().onClick.AddListener (onClickBg);
-		transform.Find("goBQ/btn").GetComponent<Button> ().onClick.AddListener (delegate {
+		transform.Find("back").GetComponent<Button> ().onClick.AddListener (delegate {
             HttpClient.Instance.Send(3, roomName);
             SceneManager.LoadScene("Lobby");
         });
-	}
+        transform.Find("start").GetComponent<Button>().onClick.AddListener(delegate {
+            HttpClient.Instance.Send(6, roomName);
+        });
+    }
 
 	IEnumerator playTips(){
 		goGloTips.gameObject.SetActive (true);
@@ -116,7 +139,6 @@ public class Online : MonoBehaviour, IMain {
 	}
 
 	void showStartBtn(bool bShow){
-//		goStart.gameObject.SetActive (true);
 		if (bShow == true) {
 			if (lCard [1].Count > 0)
 				lPlayer [1].showOutCard (lCard [1]);
@@ -132,10 +154,10 @@ public class Online : MonoBehaviour, IMain {
 		yield return new WaitForSeconds (0.1f);
 		adMgr.PlaySound ("sendcard");
 		yield return new WaitForSeconds (0.2f);
-		var lCardNum = lCard [0];
+        var lCardNum = lCard[0];
 		var transP = goHandCard.parent;
 		var iLen = transP.childCount;
-		for (var i = 0; i < lCardNum.Count; i++) {
+		for (var i = 0; i < 17; i++) {
 			Transform item = transP.GetChild (i);
 			item.gameObject.SetActive (true);
 			item.GetComponent<Card> ().init (lCardNum[i]);
@@ -145,7 +167,7 @@ public class Online : MonoBehaviour, IMain {
 		showBtnLabs (0);
 		showBtns (true);
 		for (int i = 0; i < lPlayer.Count; i++) {
-			lPlayer [i].showLeftLab (lCard[i].Count);
+			lPlayer [i].showLeftLab (17);
 		}
 		setTouchable (true);
 	}
@@ -154,8 +176,7 @@ public class Online : MonoBehaviour, IMain {
 		setTouchable (false);
 		adMgr.PlaySound ("start");
 		showStartBtn (false);
-		reset ();
-		initData();
+		//reset ();
 		StartCoroutine (playDealCard ());
 	}
 
@@ -284,42 +305,6 @@ public class Online : MonoBehaviour, IMain {
 		lPlayer [0].showLeftLab (lCard[0].Count);
 		showBtnLabs (1);
 		showBtns (true);
-	}
-
-	void initData(){
-		List<int> CARDS = new List<int> ();
-		for (var i = 1; i < 5; i++) {
-			for (int j = 1; j < 14; j++) {
-				CARDS.Add (100 * i + j);
-			}
-		}
-		CARDS.Add (16);
-		CARDS.Add (17);
-		var idx = 0;
-		while(true) {
-			int iRandom = Random.Range (0, CARDS.Count);
-			int iCard = CARDS [iRandom];
-			CARDS.RemoveAt(iRandom);
-			if (idx < 17)
-				lCard[0].Add (iCard);
-			else if (idx < 34)
-				lCard[1].Add (iCard);
-			else if (idx < 51)
-				lCard[2].Add (iCard);
-			else
-				lCardTop.Add (iCard);
-			idx++;
-			if (CARDS.Count == 0)
-				break;
-		}
-//		lCard [0] = new List<int> {
-//			103, 203, 303, 403, 104, 204, 304, 404, 105, 205, 305, 106, 206, 306, 107, 207, 307
-//		};
-		for (int i = 0; i < lCard.Count; i++) {
-			lCard [i].Sort (delegate(int x, int y) {
-				return onCardSort(x, y);
-			});
-		}
 	}
 
 	int onCardSort(int x, int y){
@@ -461,7 +446,6 @@ public class Online : MonoBehaviour, IMain {
 			lPlayer [_iTurn].showTips ("不要");
 			lOutCard [_iTurn].Clear ();
 		} else {
-//			adMgr.PlaySound ("dani");
 			adMgr.PlayCardSound (playCardControl.getCardType(), playCardControl.getCardNum());
 			List<int> lCardNum = new List<int> ();
 			for (int i = 0; i < lIdx.Count; i++) {
@@ -499,4 +483,16 @@ public class Online : MonoBehaviour, IMain {
 		var control = GetComponent<CanvasGroup> ();
 		control.blocksRaycasts = bTouch;
 	}
+
+    void showPlayStatus(int i, char c)
+    {
+        string sName = c == '1' ? "人" : "空";
+        lPlayer[i].setName(sName);
+    }
+
+    public void onResponse(string s)
+    {
+        bNetResp = true;
+        respMsg = s;
+    }
 }

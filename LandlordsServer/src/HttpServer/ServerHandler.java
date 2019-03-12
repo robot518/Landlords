@@ -14,6 +14,7 @@ import java.util.HashMap;
 
 public class ServerHandler extends ChannelInboundHandlerAdapter{
     static Map<String, List<ChannelHandlerContext>> map = new HashMap();
+    static Map<String, Room> rooms = new HashMap();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
@@ -66,11 +67,34 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
                 break;
             case 4: //加入房间
                 if (map.containsKey(roomName)){
-                    map.get(roomName).add(ctx);
+                    List<ChannelHandlerContext> list = map.get(roomName);
+                    list.add(ctx);
                     ctx.write(Unpooled.copiedBuffer("4".getBytes()));
+                    int size = list.size();
+                    //其他玩家房间信息更新
+                    for (int i = 0; i < size-1; i++)
+                        list.get(i).write(Unpooled.copiedBuffer(("5"+(size-1)+"1").getBytes()));
+                    if (size == 1){ //游戏开始
+                        Room room = generateRoom(roomName);
+                        for (int i = 0; i < 3; i++)
+                            list.get(i).write(Unpooled.copiedBuffer(("6"+room.getStrCards(i)).getBytes()));
+
+                    }
+                }
+                break;
+            case 6: //测试房间开始，配2个AI
+                if (map.containsKey(roomName)){
+                    Room room = generateRoom(roomName);
+                    ctx.write(Unpooled.copiedBuffer(("6"+room.getStrCards(0)).getBytes()));
                 }
                 break;
         }
+    }
+
+    Room generateRoom(String roomName){
+        Room room = new Room();
+        rooms.put(roomName, room);
+        return room;
     }
 
     @Override

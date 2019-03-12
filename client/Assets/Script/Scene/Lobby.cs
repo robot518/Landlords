@@ -30,11 +30,10 @@ public class Lobby : MonoBehaviour
     {
         if (bNetResp)
         {
-            int type = int.Parse(respMsg.Substring(0, 1) + "");
-            Debug.Log(respMsg);
+            int type = respMsg[0] - '0';
             switch (type)
             {
-                case 1:
+                case 1: //创建房间
                     if (respMsg[1] == '1') //成功
                     {
                         SceneManager.LoadScene("Online");
@@ -44,14 +43,14 @@ public class Lobby : MonoBehaviour
                         showGloTips("房间名重复");
                     }
                     break;
-                case 2:
+                case 2: //查看房间
                     if (respMsg == "2")
                     {
                         string[] ss = new string[0];
                         showScv(ss);
                     }else showScv(respMsg.Substring(1).Split('|'));
                     break;
-                case 4:
+                case 4: //加入房间
                     SceneManager.LoadScene("Online");
                     break;
             }
@@ -137,7 +136,11 @@ public class Lobby : MonoBehaviour
             item.gameObject.name = i.ToString();
             item.GetComponent<Button>().onClick.AddListener(delegate() {
                 Debug.Log("i="+ item.gameObject.name);
-                if (count < 2) HttpClient.Instance.Send(4, roomName);
+                if (count < 2)
+                {
+                    HttpClient.Instance.Send(4, roomName);
+                    Online.roomName = roomName;
+                }
                 else showGloTips("房间已满");
             });
         }

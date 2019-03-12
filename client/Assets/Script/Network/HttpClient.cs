@@ -76,8 +76,9 @@ public class HttpClient : MonoBehaviour
             if (len == 0) threadReceive.Abort();
             string msg = Encoding.UTF8.GetString(buffer, 0, len);
             Debug.Log("ReceiveMsg = " + msg);
-            //int type = int.Parse(msg.Substring(0, 1)+"");
-            Lobby.Instance.onResponse(msg);
+            int type = msg[0]-'0';
+            if (type < 5) Lobby.Instance.onResponse(msg);
+            else Online.Instance.onResponse(msg);
         }
     }
 

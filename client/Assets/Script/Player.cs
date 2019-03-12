@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class Player : MonoBehaviour {
 //	Image imgHead;
 	Text labLeftNum;
-//	Text labPlayerName;
+	Text labPlayerName;
 	Text labTips;
 	Transform goOutCard;
 //	Main _delt;
@@ -34,7 +34,7 @@ public class Player : MonoBehaviour {
 		var goHead = transform.GetChild (0);
 //		imgHead = goHead.GetComponent<Image> ();
 		labLeftNum = goHead.GetChild (1).GetComponent<Text> ();
-//		labPlayerName = goHead.GetChild (0).GetComponent<Text> ();
+		labPlayerName = goHead.GetChild (0).GetComponent<Text> ();
 		var goOut = transform.GetChild (2);
 		goOutCard = goOut.GetChild (0);
 		labTips = transform.Find ("labTips").GetComponent<Text> ();
@@ -111,4 +111,9 @@ public class Player : MonoBehaviour {
 	public void setIdx(int idx){
 		_idx = idx;
 	}
+
+    public void setName(string s)
+    {
+        labPlayerName.text = s;
+    }
 }

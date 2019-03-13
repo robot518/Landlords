@@ -58,11 +58,29 @@ public class Room {
         }
     }
 
-    String getStrCards(int i){
-        List<Integer> list = lCard.get(i);
+    String getStrTopCards(){
         StringBuilder sb = new StringBuilder();
-        for (Integer k: list) sb.append(k).append(',');
+        for (Integer k: lCardTop) sb.append(k).append(',');
         sb.deleteCharAt(sb.length()-1);
         return sb.toString();
     }
+
+    String getStrCards(int i){
+//        List<Integer> list = lCard.get(i);
+        StringBuilder sb = new StringBuilder();
+        for (List<Integer> list: lCard)
+            for (Integer k: list) sb.append(k).append(',');
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
+    }
+
+    void removeCards(String sCards, int i){
+        String[] ss = sCards.split(",");
+        List<Integer> list = lCard.get(i);
+        for (String s: ss) list.remove(list.indexOf(s));
+    }
+
+//    void setPrepare(){
+//
+//    }
 }

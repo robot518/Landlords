@@ -39,8 +39,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
         buf.readBytes(req);
         String body = new String(req,"UTF-8");
         System.out.println(getStrDate()+ctx.channel().remoteAddress()+"\t"+body);
-        int type = body.charAt(0)-'0';
-        String roomName = body.substring(2);
+        int type = body.charAt(0)-'0', iColon = body.lastIndexOf(':');
+        String roomName = body.substring(2, iColon);
         switch(type){
             case 1: //创建房间
                 if (map.containsKey(roomName)) ctx.write(Unpooled.copiedBuffer("10".getBytes()));
@@ -74,18 +74,37 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
                     //其他玩家房间信息更新
                     for (int i = 0; i < size-1; i++)
                         list.get(i).write(Unpooled.copiedBuffer(("5"+(size-1)+"1").getBytes()));
-                    if (size == 1){ //游戏开始
-                        Room room = generateRoom(roomName);
-                        for (int i = 0; i < 3; i++)
-                            list.get(i).write(Unpooled.copiedBuffer(("6"+room.getStrCards(i)).getBytes()));
-
-                    }
                 }
                 break;
-            case 6: //测试房间开始，配2个AI
+            case 6: //准备
                 if (map.containsKey(roomName)){
+                    //设置准备，满3人开始游戏
+//                    List<ChannelHandlerContext> list = map.get(roomName);
+//                    for (int i = 0; i < 3; i++)
+//                        list.get(i).write(Unpooled.copiedBuffer(("6"+room.getStrCards(i)).getBytes()));
+                    //游戏开始
                     Room room = generateRoom(roomName);
-                    ctx.write(Unpooled.copiedBuffer(("6"+room.getStrCards(0)).getBytes()));
+                    ctx.write(Unpooled.copiedBuffer(("7"+room.getStrCards(0)).getBytes()));
+                }
+                break;
+            case 8: //叫地主
+                if (rooms.containsKey(roomName)) {
+                    Room room = rooms.get(roomName);
+                    ctx.write(Unpooled.copiedBuffer(("8" + room.getStrTopCards()).getBytes()));
+                }
+                break;
+            case 9: //出牌
+                if (rooms.containsKey(roomName)){
+                    Room room = rooms.get(roomName);
+                    String sCards = body.substring(iColon+1);
+                    List<ChannelHandlerContext> ctxs = map.get(roomName);
+                    int idx = ctxs.indexOf(ctx);
+                    room.removeCards(sCards, idx);
+                    for (ChannelHandlerContext ctxTemp: ctxs){
+                        if (ctxTemp != ctx)
+                            ctxTemp.write(Unpooled.copiedBuffer(("9"+sCards).getBytes()));
+                    }
+//                    ctx.write(Unpooled.copiedBuffer(("7"+room.getStrCards(0)).getBytes()));
                 }
                 break;
         }

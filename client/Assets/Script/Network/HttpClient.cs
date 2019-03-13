@@ -47,11 +47,11 @@ public class HttpClient : MonoBehaviour
         }
     }
 
-    public void Send(int type, string s = "")
+    public void Send(int type, string roomName = "", string s = "")
     {
         try
         {
-            Debug.Log(client.RemoteEndPoint+ "send: " + type + ":" + s);
+            Debug.Log(client.RemoteEndPoint+ "send: " + type + ":" + roomName + ":" + s);
         }
         catch
         {
@@ -61,7 +61,7 @@ public class HttpClient : MonoBehaviour
         {
             connect();
         }
-        string msg = type + ":" + s;
+        string msg = type + ":" + roomName+":"+s;
         byte[] buffer = Encoding.UTF8.GetBytes(msg);
         client.Send(buffer);
     }

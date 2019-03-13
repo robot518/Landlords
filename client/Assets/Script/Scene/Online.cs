@@ -31,6 +31,7 @@ public class Online : MonoBehaviour, IMain {
 	bool _bOneLeft = false;
     bool bNetResp = false;
     string respMsg = "";
+    bool _bPrepared = false;
 
     // Use this for initialization
     void Start () {
@@ -45,19 +46,36 @@ public class Online : MonoBehaviour, IMain {
 		if (bNetResp)
         {
             int type = respMsg[0]-'0';
+            string msg = respMsg.Substring(1);
             switch (type)
             {
                 case 5: //房间玩家状态变更，离开/加入
-                    showPlayStatus(respMsg[1] - '0', respMsg[2]);
+                    string sName = respMsg[2] == '1' ? "人" : "空";
+                    lPlayer[respMsg[1] - '0'].setName(sName);
                     break;
-                case 6: //游戏开始
-                    string[] myCards = respMsg.Substring(1).Split(',');
+                case 6: //准备
+                    break;
+                case 7: //游戏开始
+                    string[] myCards = msg.Split(',');
                     for (int i = 0; i < myCards.Length; i++)
-                        lCard[0].Add(int.Parse(myCards[i]));
+                        lCard[i/17].Add(int.Parse(myCards[i]));
+                    for (int i = 0; i < lPlayer.Count; i++)
+                        lPlayer[i].showPrepare(false);
                     onStart();
                     break;
-                case 7: //抢地主
-
+                case 8: //抢地主
+                    string[] topCards = msg.Split(',');
+                    for (int i = 0; i < 3; i++)
+                    {
+                        lCardTop.Add(int.Parse(topCards[i]));
+                        var item = goTop.GetChild(i);
+                        item.gameObject.SetActive(true);
+                        item.GetComponent<Card>().init(lCardTop[i]);
+                    }
+                    onBeLandlord();
+                    break;
+                case 9: //有人出牌，回合切换
+                    string[] playCards = msg.Split(',');
                     break;
             }
             bNetResp = false;
@@ -107,8 +125,13 @@ public class Online : MonoBehaviour, IMain {
             HttpClient.Instance.Send(3, roomName);
             SceneManager.LoadScene("Lobby");
         });
-        transform.Find("start").GetComponent<Button>().onClick.AddListener(delegate {
-            HttpClient.Instance.Send(6, roomName);
+        transform.Find("prepare").GetComponent<Button>().onClick.AddListener(delegate {
+            if (!_bPrepared)
+            {
+                HttpClient.Instance.Send(6, roomName);
+                _bPrepared = true;
+                lPlayer[0].showPrepare(true);
+            }
         });
     }
 
@@ -202,12 +225,7 @@ public class Online : MonoBehaviour, IMain {
 			adMgr.PlaySound ("jiaodizhu");
 			showBtns (false);
 			lPlayer [0].showTips (goRight.GetChild (0).GetComponent<Text> ().text);
-			for (int i = 0; i < 3; i++) {
-				var item = goTop.GetChild (i);
-				item.gameObject.SetActive (true);
-				item.GetComponent<Card> ().init (lCardTop [i]);
-			}
-            onBeLandlord();
+            HttpClient.Instance.Send(8, roomName);
 		} else if (_iBtnType == 1) {
 			var lCardNum = getOutCard ();
 			var iCardType = playCardControl.getCardType (lCardNum);
@@ -266,7 +284,11 @@ public class Online : MonoBehaviour, IMain {
 				adMgr.PlaySound ("baojing2");
 				break;
 			}
-			onTurn (1);
+            string s = "";
+            for (int i = 0; i < lCardNum.Count; i++)
+                s += ','+lCardNum[i];
+            HttpClient.Instance.Send(9, roomName, s.Substring(1));
+			//onTurn (1);
 			_iTipIdx = -1;
 		}
 	}
@@ -351,7 +373,7 @@ public class Online : MonoBehaviour, IMain {
 			item.gameObject.SetActive (true);
 			item.GetComponent<Card> ().init (lCardNum[i]);
 			item.GetComponent<CardControl> ().init (this, i);
-			if (lCardTop.Contains (lCardNum [i]) == true) {
+			if (lCardTop.Contains (lCardNum [i])) {
 				lCardTop.Remove (lCardNum [i]);
 				item.localPosition = new Vector3 (item.localPosition.x, _pyHandCard + 30, 0);
 			}
@@ -483,12 +505,6 @@ public class Online : MonoBehaviour, IMain {
 		var control = GetComponent<CanvasGroup> ();
 		control.blocksRaycasts = bTouch;
 	}
-
-    void showPlayStatus(int i, char c)
-    {
-        string sName = c == '1' ? "人" : "空";
-        lPlayer[i].setName(sName);
-    }
 
     public void onResponse(string s)
     {

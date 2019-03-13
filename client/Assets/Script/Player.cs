@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
+    GameObject goPrepare;
 //	Image imgHead;
 	Text labLeftNum;
 	Text labPlayerName;
@@ -31,9 +32,10 @@ public class Player : MonoBehaviour {
 	}
 
 	void initParas(){
-		var goHead = transform.GetChild (0);
-//		imgHead = goHead.GetComponent<Image> ();
-		labLeftNum = goHead.GetChild (1).GetComponent<Text> ();
+        var goHead = transform.GetChild (0);
+        goPrepare = goHead.GetChild(2).gameObject;
+        //		imgHead = goHead.GetComponent<Image> ();
+        labLeftNum = goHead.GetChild (1).GetComponent<Text> ();
 		labPlayerName = goHead.GetChild (0).GetComponent<Text> ();
 		var goOut = transform.GetChild (2);
 		goOutCard = goOut.GetChild (0);
@@ -115,5 +117,10 @@ public class Player : MonoBehaviour {
     public void setName(string s)
     {
         labPlayerName.text = s;
+    }
+
+    public void showPrepare(bool b)
+    {
+        goPrepare.SetActive(b);
     }
 }

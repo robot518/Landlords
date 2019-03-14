@@ -36,6 +36,7 @@ public class Lobby : MonoBehaviour
                 case 1: //创建房间
                     if (respMsg[1] == '1') //成功
                     {
+                        Online.bOwner = true;
                         SceneManager.LoadScene("Online");
                     }
                     else
@@ -51,6 +52,7 @@ public class Lobby : MonoBehaviour
                     }else showScv(respMsg.Substring(1).Split('|'));
                     break;
                 case 4: //加入房间
+                    Online.playCount = respMsg[1] - '0';
                     SceneManager.LoadScene("Online");
                     break;
             }
@@ -136,7 +138,7 @@ public class Lobby : MonoBehaviour
             item.gameObject.name = i.ToString();
             item.GetComponent<Button>().onClick.AddListener(delegate() {
                 Debug.Log("i="+ item.gameObject.name);
-                if (count < 2)
+                if (count < 3)
                 {
                     HttpClient.Instance.Send(4, roomName);
                     Online.roomName = roomName;

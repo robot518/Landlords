@@ -61,7 +61,8 @@ public class HttpClient : MonoBehaviour
         {
             connect();
         }
-        string msg = type + ":" + roomName+":"+s;
+        int c = type + '0';
+        string msg = (char)c + ":" + roomName+":"+s;
         byte[] buffer = Encoding.UTF8.GetBytes(msg);
         client.Send(buffer);
     }

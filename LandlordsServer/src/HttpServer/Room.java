@@ -8,6 +8,8 @@ import java.util.List;
 public class Room {
     List<List<Integer>> lCard = new ArrayList<>();
     List<Integer> lCardTop = new ArrayList<>();
+    int callCount = 0; //叫地主次数
+    int LandlordsIdx = 0; //地主idx
 
     Room(){
         initData();
@@ -66,10 +68,9 @@ public class Room {
     }
 
     String getStrCards(int i){
-//        List<Integer> list = lCard.get(i);
+        List<Integer> list = lCard.get(i);
         StringBuilder sb = new StringBuilder();
-        for (List<Integer> list: lCard)
-            for (Integer k: list) sb.append(k).append(',');
+        for (Integer k: list) sb.append(k).append(',');
         sb.deleteCharAt(sb.length()-1);
         return sb.toString();
     }
@@ -80,7 +81,15 @@ public class Room {
         for (String s: ss) list.remove(list.indexOf(s));
     }
 
-//    void setPrepare(){
-//
-//    }
+    int addCallCount(){
+        return ++callCount;
+    }
+
+    void setLandlordsIdx(int idx){
+        LandlordsIdx = idx;
+    }
+
+    int getLandlordsIdx(){
+        return LandlordsIdx;
+    }
 }

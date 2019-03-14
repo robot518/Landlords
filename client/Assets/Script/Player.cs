@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour {
     GameObject goPrepare;
-//	Image imgHead;
-	Text labLeftNum;
+    GameObject goLandlords;
+    //	Image imgHead;
+    Text labLeftNum;
 	Text labPlayerName;
 	Text labTips;
 	Transform goOutCard;
@@ -34,6 +35,7 @@ public class Player : MonoBehaviour {
 	void initParas(){
         var goHead = transform.GetChild (0);
         goPrepare = goHead.GetChild(2).gameObject;
+        goLandlords = goHead.GetChild(3).gameObject;
         //		imgHead = goHead.GetComponent<Image> ();
         labLeftNum = goHead.GetChild (1).GetComponent<Text> ();
 		labPlayerName = goHead.GetChild (0).GetComponent<Text> ();
@@ -74,7 +76,12 @@ public class Player : MonoBehaviour {
 		}
 	}
 
-	public void showOutCard(List<int> lCard){
+    public int getLeftNum()
+    {
+        return int.Parse(labLeftNum.text);
+    }
+
+    public void showOutCard(List<int> lCard){
 		var transP = goOutCard.parent;
 		for (int i = 0; i < transP.childCount; i++) {
 			transP.GetChild (i).gameObject.SetActive (false);
@@ -122,5 +129,10 @@ public class Player : MonoBehaviour {
     public void showPrepare(bool b)
     {
         goPrepare.SetActive(b);
+    }
+
+    public void showLandlords(bool b)
+    {
+        goLandlords.SetActive(b);
     }
 }

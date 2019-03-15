@@ -93,6 +93,8 @@ public class Lobby : MonoBehaviour
             {
                 HttpClient.Instance.Send(1, ipfRoomName.text);
                 Online.roomName = ipfRoomName.text;
+                Online.playCount = 1;
+                Online.bOwner = true;
             }
         });
         //取消
@@ -137,7 +139,6 @@ public class Lobby : MonoBehaviour
             item.GetChild(1).GetComponent<Text>().text = count+"";
             item.gameObject.name = i.ToString();
             item.GetComponent<Button>().onClick.AddListener(delegate() {
-                Debug.Log("i="+ item.gameObject.name);
                 if (count < 3)
                 {
                     HttpClient.Instance.Send(4, roomName);

@@ -49,7 +49,7 @@ public class Main : MonoBehaviour, IMain {
 		for (int i = 0; i < 3; i++) {
 			lCard.Add(new List<int> ());
 			lOutCard.Add(new List<int> ());
-			lPlayer [i].setIdx (i);
+			lPlayer [i].init (i);
 		}
 		goLeft = transform.Find ("goFirst/goLeft");
 		goRight = transform.Find ("goFirst/goRight");

@@ -75,55 +75,71 @@ public class ServerHandler extends ChannelInboundHandlerAdapter{
                     ctx.write(Unpooled.copiedBuffer(("4"+size).getBytes()));
                     //其他玩家房间信息更新
                     for (int i = 0; i < size-1; i++)
-                        list.get(i).write(Unpooled.copiedBuffer(("5"+size).getBytes()));
+                        list.get(i).writeAndFlush(Unpooled.copiedBuffer(("5"+size).getBytes()));
                 }
                 break;
             case 6: //准备
                 if (map.containsKey(roomName)){
                     //设置准备
-                    int prepares = roomPrepare.get(roomName);
-                    roomPrepare.put(roomName, prepares+1);
-                    List<ChannelHandlerContext> list = map.get(roomName);
+//                    int prepares = roomPrepare.get(roomName);
+//                    roomPrepare.put(roomName, prepares+1);
+                    Room room = generateRoom(roomName);
+                    ctx.write(Unpooled.copiedBuffer(("7"+room.getStrCards(0)).getBytes()));
+//                    List<ChannelHandlerContext> list = map.get(roomName);
                     //满3人开始游戏
-                    if (prepares == 2){
-                        //游戏开始
-                        Room room = generateRoom(roomName);
-                        for (int i = 0; i < 3; i++)
-                            list.get(i).write(Unpooled.copiedBuffer(("7"+room.getStrCards(i)).getBytes()));
-                    }else{
-                        int idx = list.indexOf(ctx);
-                        for (int i = 0; i < 3 && i != idx; i++)
-                            list.get(i).write(Unpooled.copiedBuffer(("6"+getConvertIdx(idx, i)).getBytes()));
-                    }
+//                    int idx = list.indexOf(ctx);
+//                    if (prepares == 2){
+//                        //游戏开始
+//                        Room room = generateRoom(roomName);
+//                        for (int i = 0; i < 3 && i != idx; i++)
+//                            list.get(i).writeAndFlush(Unpooled.copiedBuffer(("7"+room.getStrCards(i)).getBytes()));
+//                    }else{
+//                        for (int i = 0; i < 3 && i != idx; i++)
+//                            list.get(i).writeAndFlush(Unpooled.copiedBuffer(("6"+getConvertIdx(idx, i)).getBytes()));
+//                    }
                 }
                 break;
             case 8: //叫地主
                 if (rooms.containsKey(roomName)) {
                     List<ChannelHandlerContext> list = map.get(roomName);
                     int idx = list.indexOf(ctx), iType = body.charAt(iColon+1)-'0';
-                    for (int i = 0; i < 3 && i != idx; i++)
-                        list.get(i).write(Unpooled.copiedBuffer(("8"+getConvertIdx(idx, i)+iType).getBytes()));
+//                    for (int i = 0; i < 3 && i != idx; i++)
+//                        list.get(i).writeAndFlush(Unpooled.copiedBuffer(("8"+getConvertIdx(idx, i)+iType).getBytes()));
                     //确定地主
                     Room room = rooms.get(roomName);
                     int count = room.addCallCount();
                     if (iType == 1) room.setLandlordsIdx(idx);
                     int iLandlords = room.getLandlordsIdx();
-                    if (count == 2 && iLandlords == 0 || count == 3){ //确定地主
-                        list.get(iLandlords).write(Unpooled.copiedBuffer(("93"+room.getStrTopCards()).getBytes()));
-                        for (int i = 0; i < 3 && i != iLandlords; i++)
-                            list.get(i).write(Unpooled.copiedBuffer(("9"+getConvertIdx(iLandlords, i)+room.getStrTopCards()).getBytes()));
-                    }
+                    ctx.write(Unpooled.copiedBuffer(("93"+room.getStrTopCards()).getBytes()));
+//                    if (count == 2 && iLandlords == 0 || count == 3){ //确定地主
+//                        list.get(iLandlords).writeAndFlush(Unpooled.copiedBuffer(("93"+room.getStrTopCards()).getBytes()));
+//                        for (int i = 0; i < 3 && i != iLandlords; i++)
+//                            list.get(i).writeAndFlush(Unpooled.copiedBuffer(("9"+getConvertIdx(iLandlords, i)+room.getStrTopCards()).getBytes()));
+//                    }
                 }
                 break;
             case 10: //出牌
                 if (rooms.containsKey(roomName)){
                     Room room = rooms.get(roomName);
                     String sCards = body.substring(iColon+1);
-                    List<ChannelHandlerContext> list = map.get(roomName);
-                    int idx = list.indexOf(ctx);
-                    room.removeCards(sCards, idx);
-                    for (int i = 0; i < 3 && i != idx; i++)
-                        list.get(i).write(Unpooled.copiedBuffer(((char)(10+'0')+getConvertIdx(idx, i)+sCards).getBytes()));
+//                    List<ChannelHandlerContext> list = map.get(roomName);
+//                    int idx = list.indexOf(ctx);
+//                    List<Integer> lOutCards = room.removeCards(sCards, 0);
+                    room.addTurn();
+//                    List<Integer> lCards = room.getCards();
+//                    List<Integer> lIdx = PlayCardControl.getTipCardIdx(lCards, -1, lOutCards, false);
+//                    if (lIdx.size() == 0){
+//
+//                    }else{
+//
+//                    }
+                    Thread.currentThread().sleep(800);
+                    ctx.writeAndFlush(Unpooled.copiedBuffer(((char)(10+'0')+"0").getBytes())); //不要
+                    Thread.currentThread().sleep(800);
+                    room.addTurn();
+                    ctx.write(Unpooled.copiedBuffer(((char)(10+'0')+"0").getBytes())); //不要
+//                    for (int i = 0; i < 3 && i != idx; i++)
+//                        list.get(i).writeAndFlush(Unpooled.copiedBuffer(((char)(10+'0')+getConvertIdx(idx, i)+sCards).getBytes()));
                 }
                 break;
         }

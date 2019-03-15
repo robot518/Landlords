@@ -10,9 +10,20 @@ public class Room {
     List<Integer> lCardTop = new ArrayList<>();
     int callCount = 0; //叫地主次数
     int LandlordsIdx = 0; //地主idx
+    int _iTurn = 0; //谁的回合
+    boolean _bOneLeft = false;
 
     Room(){
         initData();
+    }
+
+    public void addTurn(){
+        _iTurn++;
+        if (_iTurn == 3) _iTurn = 0;
+    }
+
+    public List<Integer> getCards(){
+        return lCard.get(_iTurn);
     }
 
     void initData(){
@@ -75,10 +86,16 @@ public class Room {
         return sb.toString();
     }
 
-    void removeCards(String sCards, int i){
+    List<Integer> removeCards(String sCards, int i){
+        List<Integer> res = new ArrayList<>();
         String[] ss = sCards.split(",");
         List<Integer> list = lCard.get(i);
-        for (String s: ss) list.remove(list.indexOf(s));
+        for (String s: ss) {
+            int num = Integer.parseInt(s);
+            list.remove(list.indexOf(num));
+            res.add(num);
+        };
+        return res;
     }
 
     int addCallCount(){
@@ -91,5 +108,9 @@ public class Room {
 
     int getLandlordsIdx(){
         return LandlordsIdx;
+    }
+
+    boolean getBOneLeft(){
+        return _bOneLeft;
     }
 }

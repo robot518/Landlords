@@ -23,8 +23,7 @@ public class Player : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		initParas ();
-		initShow ();
+		
 	}
 	
 	// Update is called once per frame
@@ -32,7 +31,14 @@ public class Player : MonoBehaviour {
 		
 	}
 
-	void initParas(){
+    public void init(int idx)
+    {
+        _idx = idx;
+        initParas();
+        initShow();
+    }
+
+    void initParas(){
         var goHead = transform.GetChild (0);
         goPrepare = goHead.GetChild(2).gameObject;
         goLandlords = goHead.GetChild(3).gameObject;
@@ -115,10 +121,6 @@ public class Player : MonoBehaviour {
 		for (int i = 0; i < transP.childCount; i++) {
 			transP.GetChild (i).gameObject.SetActive (false);
 		}
-	}
-
-	public void setIdx(int idx){
-		_idx = idx;
 	}
 
     public void setName(string s)

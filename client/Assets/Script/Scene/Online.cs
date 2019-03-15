@@ -53,7 +53,11 @@ public class Online : MonoBehaviour, IMain {
             {
                 case 5: //房间玩家状态变更，离开/加入
                     playCount = respMsg[1] - '0';
-                    if (playCount > 2) lPlayer[2].setName("人");
+                    if (bOwner)
+                    {
+                        if (playCount > 2) lPlayer[2].setName("人");
+                        else lPlayer[1].setName("人");
+                    }
                     else lPlayer[1].setName("人");
                     break;
                 case 6: //准备
@@ -102,15 +106,28 @@ public class Online : MonoBehaviour, IMain {
                     break;
                 case 10: //有人出牌，回合切换
                     iType = respMsg[1] - '0';
-                    string[] playCards = msg.Substring(1).Split(',');
-                    for (int i = 0; i < playCards.Length; i++)
-                        lOutCard[iType].Add(int.Parse(playCards[i]));
-                    lPlayer[iType].showOutCard(lOutCard[iType]);
-                    lPlayer[iType].showLeftLab(lPlayer[iType].getLeftNum()- playCards.Length);
-                    // 我的回合
-                    if (iType == 2)
+                    //不要
+                    if (iType == 0)
                     {
-                        showBtns(true);
+                        adMgr.PlaySound("buyao");
+                        List<int> lIdx = new List<int>();
+                        lPlayer[_iTurn].showOutCard(lIdx);
+                        lPlayer[_iTurn].showTips("不要");
+                        lOutCard[_iTurn].Clear();
+                        onTurn(_iTurn+1);
+                    }
+                    else
+                    {
+                        string[] playCards = msg.Substring(1).Split(',');
+                        for (int i = 0; i < playCards.Length; i++)
+                            lOutCard[iType].Add(int.Parse(playCards[i]));
+                        lPlayer[iType].showOutCard(lOutCard[iType]);
+                        lPlayer[iType].showLeftLab(lPlayer[iType].getLeftNum() - playCards.Length);
+                        // 我的回合
+                        if (iType == 2)
+                        {
+                            showBtns(true);
+                        }
                     }
                     break;
             }
@@ -127,7 +144,7 @@ public class Online : MonoBehaviour, IMain {
 		for (int i = 0; i < 3; i++) {
 			lCard.Add(new List<int> ());
 			lOutCard.Add(new List<int> ());
-			lPlayer [i].setIdx (i);
+            lPlayer[i].init(i);
 		}
 		goLeft = transform.Find ("goFirst/goLeft");
 		goRight = transform.Find ("goFirst/goRight");
@@ -150,8 +167,8 @@ public class Online : MonoBehaviour, IMain {
 		}
 		showBtns (false);
 		goGloTips.gameObject.SetActive (false);
-        if (playCount > 1) lPlayer[1].setName("人");
-        if (playCount > 2) lPlayer[2].setName("人");
+        if (playCount > 1) lPlayer[2].setName("人");
+        if (playCount > 2) lPlayer[1].setName("人");
     }
 
 	void initEvent(){
@@ -164,7 +181,7 @@ public class Online : MonoBehaviour, IMain {
             SceneManager.LoadScene("Lobby");
         });
         transform.Find("prepare").GetComponent<Button>().onClick.AddListener(delegate {
-            if (!_bPrepared)
+            if (!_bPrepared && playCount == 1)
             {
                 HttpClient.Instance.Send(6, roomName);
                 _bPrepared = true;
@@ -327,9 +344,9 @@ public class Online : MonoBehaviour, IMain {
 			}
             string s = "";
             for (int i = 0; i < lCardNum.Count; i++)
-                s += ','+lCardNum[i];
+                s += ","+lCardNum[i];
             HttpClient.Instance.Send(10, roomName, s.Substring(1));
-			//onTurn (1);
+			onTurn (1);
 			_iTipIdx = -1;
 		}
 	}
@@ -493,8 +510,9 @@ public class Online : MonoBehaviour, IMain {
 		if (iTurn == 3)
 			iTurn = 0;
 		_iTurn = iTurn;
-		Invoke ("onPlay", 0.8f);
-	}
+        //Invoke ("onPlay", 0.8f);
+        if (_iTurn == 0) showBtns(true);
+    }
 
 	void onPlay(){
 		if (_iTurn == 0) {

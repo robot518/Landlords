@@ -53,7 +53,7 @@ public class Card : MonoBehaviour {
 			var strColor = iCardNum % 2 == 1 ? "D94432FF" : "191919FF"; // 15红14黑
 			if (labNum3.transform.childCount > 0) {
 				labNum3.text = "<color=#" + strColor + ">" + "JOKER" + "</color>";
-				labNum3.transform.GetChild (0).GetComponent<Text> ().text = "<color=#" + strColor + ">" + "wind\n工\n作\n室" + "</color>";
+				labNum3.transform.GetChild (0).GetComponent<Text> ().text = "<color=#" + strColor + ">" + "robot\n工\n作\n室" + "</color>";
 			} else {
 //				var str = iCardNum == 16 ? "小王" : "大王";
 				labNum3.text = "<color=#" + strColor + ">" + "JK" + "</color>";

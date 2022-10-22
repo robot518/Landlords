@@ -17,5 +17,6 @@
         <jarDirectory url="file://$USER_HOME$/Downloads/Jar" recursive="false" />
       </library>
     </orderEntry>
+    <orderEntry type="library" name="commons-pool2-2.6.0" level="project" />
   </component>
 </module>

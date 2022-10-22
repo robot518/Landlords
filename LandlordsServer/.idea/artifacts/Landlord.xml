@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Landlord">
+    <output-path>$PROJECT_DIR$/out/artifacts/Landlord_Jar</output-path>
+    <root id="archive" name="Landlord.jar">
+      <element id="module-output" name="LandlordsServer" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/Jar/commons-pool2-2.6.0.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/Jar/netty-all-4.1.32.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$USER_HOME$/Downloads/Jar/slf4j-api-1.7.25.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
